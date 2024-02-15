@@ -326,25 +326,7 @@ def load_forecast_to_db():
     final_dataframe['gtp'] = final_dataframe['gtp'].str.replace('P', 'G')
 
     gtp_dict = [('GVIE0011', ['GVIE0010']),
-                ('GVIE0252', ['GVIE0602']),
-                ('GVIE0676', ['GVIE0690']),
-                ('GVIE0677', ['GVIE0678']),
-                ('GVIE0694', ['GVIE0681']),
-                ('GVIE0671', ['GVIE0682']),
-                ('GVIE0687', ['GVIE0688']),
-                ('GVIE0004', ['GVIE0002']),
-                ('GVIE0233', ['GVIE0245']),
-                ('GVIE0013', ['GVIE0247']),
-                ('GVIE0340', ['GVIE0343']),
-                ('GVIE1185', ['GVIE0427']),
-                ('GVIE0455', ['GVIE0522']),
-                ('GVIE0526', ['GVIE0528']),
-                ('GVIE0123', ['GVIE0110', 'GVIE0111', 'GVIE0118', 'GVIE0120']),
-                ('GVIE0112', ['GVIE0114', 'GVIE0115', 'GVIE0124']),
-                ('GVIE0227', ['GVIE0229', 'GVIE1184']),
-                ('GVIE0425', ['GVIE0417', 'GVIE0824', 'GVIE0825']),
-                ('GVIE0836', ['GVIE0429', 'GVIE0603']),
-                ('GVIE0023', ['GVIE0217', 'GVIE0008']),
+                ...
                 ('GVIE0695', ['GVIE0689', 'GVIE0691']),
                 ]
     for pair in gtp_dict:
@@ -574,54 +556,6 @@ def prepare_forecast_xgboost(forecast_dataframe, test_dataframe, col_to_float):
     z = forecast_dataframe.drop(
         forecast_dataframe.index[np.where(forecast_dataframe['fact'] == 0)])
 
-    #
-
-    # Загрузка прогноза за предыдущие дни
-    # для расчета точности попадания и удаления строк с большой ошибкой
-    # чтобы модель обучался только на том, где попала.
-
-    # connection_predict = connection(1)
-    # with connection_predict.cursor() as cursor:
-    #     tomorrow_io_sql = ("SELECT gtp, dt, load_time, value 'tomorrow_io' "
-    #                        "FROM treid_03.weather_foreca WHERE id_foreca IN "
-    #                        "(22,23) AND DATE(load_time) = DATE_ADD(DATE(dt), "
-    #                        "INTERVAL -1 DAY) AND DATE(dt) between "
-    #                        "DATE_ADD(CURDATE(), INTERVAL -31 DAY) and "
-    #                        "DATE_ADD(CURDATE(), INTERVAL 0 DAY) "
-    #                        "ORDER BY gtp, dt;")
-    #     cursor.execute(tomorrow_io_sql)
-    #     tomorrow_io_dataframe = pd.DataFrame(
-    #         cursor.fetchall(),
-    #         columns=['gtp_tomorrow_io', 'dt_tomorrow_io',
-    #                  'load_time_tomorrow_io', 'value_tomorrow_io'])
-    #     tomorrow_io_dataframe.drop_duplicates(
-    #         subset=['gtp_tomorrow_io', 'dt_tomorrow_io'],
-    #         keep='last', inplace=True, ignore_index=False)
-    #     # print(tomorrow_io_dataframe)
-    #     tomorrow_io_dataframe.to_excel("tomorrow_io_dataframe.xlsx")
-    # connection_predict.close()
-
-    # z = z.merge(tomorrow_io_dataframe,
-    #             left_on=['gtp',
-    #                      'datetime_msc'],
-    #             right_on=['gtp_tomorrow_io',
-    #                       'dt_tomorrow_io'],
-    #             how='left')
-
-    # z.drop(['gtp_tomorrow_io', 'dt_tomorrow_io', 'load_time_tomorrow_io'],
-    #        axis='columns', inplace=True)
-    # z.dropna(subset=['value_tomorrow_io'], inplace=True)
-    # z['score'] = (
-    #     z['value_tomorrow_io'].astype('float') /
-    #     z['fact'].astype('float'))
-    # z.drop(z.index[np.where(z['score'] < 0.9)],
-    #        inplace=True)
-    # z.drop(z.index[np.where(z['score'] > 1.1)],
-    #        inplace=True)
-    # z.drop(['value_tomorrow_io', 'score'],
-    #        axis='columns', inplace=True)
-    #
-
     z['gtp'] = z['gtp'].str.replace('GVIE', '1')
     # z['gtp'] = z['gtp'].str.replace('GKZV', '4')
     # z['gtp'] = z['gtp'].str.replace('GKZ', '2')
@@ -777,54 +711,6 @@ def optuna_tune_params(forecast_dataframe, test_dataframe):
     # Подбор параметров через Optuna
     z = forecast_dataframe.drop(
         forecast_dataframe.index[np.where(forecast_dataframe['fact'] == 0)])
-
-    #
-
-    # Загрузка прогноза за предыдущие дни
-    # для расчета точности попадания и удаления строк с большой ошибкой
-    # чтобы модель обучался только на том, где попала.
-
-    # connection_predict = connection(1)
-    # with connection_predict.cursor() as cursor:
-    #     tomorrow_io_sql = ("SELECT gtp, dt, load_time, value 'tomorrow_io' "
-    #                        "FROM treid_03.weather_foreca WHERE id_foreca IN "
-    #                        "(22,23) AND DATE(load_time) = DATE_ADD(DATE(dt), "
-    #                        "INTERVAL -1 DAY) AND DATE(dt) between "
-    #                        "DATE_ADD(CURDATE(), INTERVAL -31 DAY) and "
-    #                        "DATE_ADD(CURDATE(), INTERVAL 0 DAY) "
-    #                        "ORDER BY gtp, dt;")
-    #     cursor.execute(tomorrow_io_sql)
-    #     tomorrow_io_dataframe = pd.DataFrame(
-    #         cursor.fetchall(),
-    #         columns=['gtp_tomorrow_io', 'dt_tomorrow_io',
-    #                  'load_time_tomorrow_io', 'value_tomorrow_io'])
-    #     tomorrow_io_dataframe.drop_duplicates(
-    #         subset=['gtp_tomorrow_io', 'dt_tomorrow_io'],
-    #         keep='last', inplace=True, ignore_index=False)
-    #     # print(tomorrow_io_dataframe)
-    #     tomorrow_io_dataframe.to_excel("tomorrow_io_dataframe.xlsx")
-    # connection_predict.close()
-
-    # z = z.merge(tomorrow_io_dataframe,
-    #             left_on=['gtp',
-    #                      'datetime_msc'],
-    #             right_on=['gtp_tomorrow_io',
-    #                       'dt_tomorrow_io'],
-    #             how='left')
-
-    # z.drop(['gtp_tomorrow_io', 'dt_tomorrow_io', 'load_time_tomorrow_io'],
-    #        axis='columns', inplace=True)
-    # z.dropna(subset=['value_tomorrow_io'], inplace=True)
-    # z['score'] = (
-    #     z['value_tomorrow_io'].astype('float') /
-    #     z['fact'].astype('float'))
-    # z.drop(z.index[np.where(z['score'] < 0.9)],
-    #        inplace=True)
-    # z.drop(z.index[np.where(z['score'] > 1.1)],
-    #        inplace=True)
-    # z.drop(['value_tomorrow_io', 'score'],
-    #        axis='columns', inplace=True)
-    #
 
     z['gtp'] = z['gtp'].str.replace('GVIE', '1')
     # z['gtp'] = z['gtp'].str.replace('GKZV', '4')
